@@ -1,0 +1,42 @@
+# =============================================================================
+# HostelOS Git Ignore
+# =============================================================================
+
+# Virtual Environments & Python
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+backend/recoverease.db
+
+# Node.js & Frontend dependencies
+node_modules/
+frontend/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# Build artifacts
+dist/
+frontend/dist/
+dist-ssr/
+*.local
+
+# IDE & OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Environment secrets
+.env.local

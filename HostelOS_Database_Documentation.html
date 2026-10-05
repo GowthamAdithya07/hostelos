@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HostelOS — Relational DBMS Specification Document</title>
+  <style>
+    @media print {
+      body { font-size: 11pt; }
+      .page-break { page-break-before: always; }
+      .no-print { display: none; }
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #1e293b;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      background-color: #ffffff;
+    }
+    h1 {
+      color: #0f766e;
+      font-size: 26pt;
+      margin-bottom: 4px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .subtitle {
+      color: #64748b;
+      font-size: 13pt;
+      margin-top: 0;
+      margin-bottom: 24px;
+      font-weight: 500;
+    }
+    .badge-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 9pt;
+      font-weight: 600;
+      color: #334155;
+    }
+    .badge-teal {
+      background: #ccfbf1;
+      border-color: #99f6e4;
+      color: #0f766e;
+    }
+    hr {
+      border: none;
+      height: 2px;
+      background: #0d9488;
+      margin: 24px 0;
+    }
+    h2 {
+      color: #0f766e;
+      font-size: 17pt;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 6px;
+      margin-top: 32px;
+      margin-bottom: 12px;
+    }
+    h3 {
+      color: #1e293b;
+      font-size: 13pt;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+    p {
+      margin-top: 0;
+      margin-bottom: 12px;
+      color: #334155;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 9.5pt;
+    }
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #0f766e;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+    code, pre {
+      font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+      font-size: 9pt;
+    }
+    pre {
+      background: #f1f5f9;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      overflow-x: auto;
+      line-height: 1.45;
+      color: #0f172a;
+    }
+    .callout {
+      background-color: #f0fdfa;
+      border-left: 4px solid #0d9488;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 9.5pt;
+    }
+    ul {
+      margin-top: 0;
+      padding-left: 20px;
+      color: #334155;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>HostelOS — Relational DBMS Specification Document</h1>
+  <div class="subtitle">
+    Hostel Room Allocation & Complaint Management System<br>
+    Course: <strong>23CSE202 (Database Management Systems)</strong> · Academic Group: <strong>Group C9</strong><br>
+    Amrita School of Computing, Amrita Vishwa Vidyapeetham
+  </div>
+
+  <div class="badge-bar">
+    <span class="badge badge-teal">10 Normalized Tables</span>
+    <span class="badge badge-teal">BCNF / 3NF Compliant</span>
+    <span class="badge">PostgreSQL & SQLite</span>
+    <span class="badge">FastAPI + React 18</span>
+    <span class="badge">13/13 Automated Tests Passing</span>
+  </div>
+
+  <hr>
+
+  <h2>👥 Project Team Members (Group C9)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Student Name</th>
+        <th>Roll Number</th>
+        <th>Department</th>
+        <th>Academic Year</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Siddharth Sai</strong></td>
+        <td><code>AM.SC.U4CSE25209</code></td>
+        <td>Computer Science & Engineering</td>
+        <td>2025–2029</td>
+      </tr>
+      <tr>
+        <td><strong>Gowtham Adithya</strong></td>
+        <td><code>AM.SC.U4CSE25258</code></td>
+        <td>Computer Science & Engineering</td>
+        <td>2025–2029</td>
+      </tr>
+      <tr>
+        <td><strong>Rama Sri Surya</strong></td>
+        <td><code>AM.SC.U4CSE25263</code></td>
+        <td>Computer Science & Engineering</td>
+        <td>2025–2029</td>
+      </tr>
+      <tr>
+        <td><strong>Sai Santhosh</strong></td>
+        <td><code>AM.SC.U4CSE25264</code></td>
+        <td>Computer Science & Engineering</td>
+        <td>2025–2029</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>1. Executive Summary & Problem Formulation</h2>
+  <p>
+    Campus hostel administration involves thousands of residents distributed across multiple blocks.
+    Conventional systems relying on paper registers or flat spreadsheets face critical relational shortcomings:
+  </p>
+  <ul>
+    <li><strong>Room Overbooking Anomalies:</strong> Rooms are mistakenly assigned beyond their physical architectural bed limits.</li>
+    <li><strong>Referential Inconsistencies:</strong> Vacated beds leave orphaned complaint tickets or unchecked out-station gate passes.</li>
+    <li><strong>Functional Redundancy:</strong> Room tiers, capacities, and amenities duplicated across resident rows violate 3NF.</li>
+    <li><strong>Audit Failures:</strong> Daily night roll-call lacks idempotency, causing duplicated or omitted records.</li>
+    <li><strong>Privilege Leakage:</strong> Without role-segregated tables, students can manipulate parameters to inspect other residents' private records.</li>
+  </ul>
+  <p>
+    <strong>HostelOS</strong> solves these systemic failures through a <strong>10-table relational schema normalized to Boyce-Codd Normal Form (BCNF / 3NF)</strong>,
+    enforcing foreign keys, cascading deletions, domain check constraints, automated triggers, and role-based data isolation.
+  </p>
+
+  <h2>2. Relational Entity Architecture & Foreign Key Map</h2>
+  <pre>
+rooms.type_id               -->  room_types.id          (ON DELETE RESTRICT)
+allocations.student_id      -->  students.id            (ON DELETE CASCADE)
+allocations.room_id         -->  rooms.id               (ON DELETE CASCADE)
+complaints.student_id       -->  students.id            (ON DELETE CASCADE)
+complaints.staff_id         -->  staff.id               (ON DELETE SET NULL)
+attendance.student_id       -->  students.id            (ON DELETE CASCADE)
+attendance.admin_id         -->  admins.id              (ON DELETE SET NULL)
+leave_passes.student_id     -->  students.id            (ON DELETE CASCADE)
+leave_passes.authority_id   -->  authorities.id         (ON DELETE SET NULL)
+  </pre>
+
+  <h2>3. Complete Data Dictionaries (10 Normalized Tables)</h2>
+
+  <h3>Table 1: students (Resident Scholars)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Column Name</th>
+        <th>Data Type</th>
+        <th>Null?</th>
+        <th>Constraints / Keys</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>id</td><td>INTEGER</td><td>NO</td><td>PRIMARY KEY, Auto-increment</td><td>Surrogate unique identifier</td></tr>
+      <tr><td>roll_number</td><td>VARCHAR(50)</td><td>NO</td><td>UNIQUE, Indexed</td><td>College Roll Number ('AM.SC.U4CSE25209')</td></tr>
+      <tr><td>name</td><td>VARCHAR(255)</td><td>NO</td><td>NOT NULL</td><td>Student full legal name</td></tr>
+      <tr><td>major</td><td>VARCHAR(255)</td><td>NO</td><td>DEFAULT 'Computer Science & Engineering'</td><td>Academic department</td></tr>
+      <tr><td>emergency_contact</td><td>VARCHAR(50)</td><td>NO</td><td>NOT NULL</td><td>Parent / Guardian phone number</td></tr>
+      <tr><td>email</td><td>VARCHAR(255)</td><td>NO</td><td>UNIQUE, Indexed</td><td>Institutional student email</td></tr>
+      <tr><td>password_hash</td><td>VARCHAR(255)</td><td>NO</td><td>NOT NULL</td><td>Bcrypt password hash ('Student@123')</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>NO</td><td>DEFAULT CURRENT_TIMESTAMP</td><td>Account inception timestamp</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Table 2: authorities (Chief Warden & Hostel Wardens)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Column Name</th>
+        <th>Data Type</th>
+        <th>Null?</th>
+        <th>Constraints / Keys</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>id</td><td>INTEGER</td><td>NO</td><td>PRIMARY KEY, Auto-increment</td><td>Warden staff identifier</td></tr>
+      <tr><td>name</td><td>VARCHAR(255)</td><td>NO</td><td>NOT NULL</td><td>Official name ('Dr. Suresh Kumar')</td></tr>
+      <tr><td>designation</td><td>VARCHAR(100)</td><td>NO</td><td>DEFAULT 'Chief Warden'</td><td>Official title ('Chief Warden')</td></tr>
+      <tr><td>email</td><td>VARCHAR(255)</td><td>NO</td><td>UNIQUE, Indexed</td><td>Warden portal email ('warden@hostelos.in')</td></tr>
+      <tr><td>password_hash</td><td>VARCHAR(255)</td><td>NO</td><td>NOT NULL</td><td>Bcrypt hash ('Warden@123')</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>NO</td><td>DEFAULT CURRENT_TIMESTAMP</td><td>Record timestamp</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Table 3: admins (Institute Head & Leadership)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Column Name</th>
+        <th>Data Type</th>
+        <th>Null?</th>
+        <th>Constraints / Keys</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>id</td><td>INTEGER</td><td>NO</td><td>PRIMARY KEY, Auto-increment</td><td>Executive administrator ID</td></tr>
+      <tr><td>name</td><td>VARCHAR(255)</td><td>NO</td><td>NOT NULL</td><td>Executive Name ('Campus Director')</td></tr>
+      <tr><td>email</td><td>VARCHAR(255)</td><td>NO</td><td>UNIQUE, Indexed</td><td>Executive email ('admin@hostelos.in')</td></tr>
+      <tr><td>password_hash</td><td>VARCHAR(255)</td><td>NO</td><td>NOT NULL</td><td>Bcrypt hash ('Admin@123')</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>NO</td><td>DEFAULT CURRENT_TIMESTAMP</td><td>Record timestamp</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Table 4: room_types (Room Tiers & Physical Bed Capacities)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Column Name</th>
+        <th>Data Type</th>
+        <th>Null?</th>
+        <th>Constraints / Keys</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>id</td><td>INTEGER</td><td>NO</td><td>PRIMARY KEY, Auto-increment</td><td>Type identifier</td></tr>
+      <tr><td>type_name</td><td>VARCHAR(100)</td><td>NO</td><td>UNIQUE</td><td>Room tier ('Single AC', 'Double AC', 'Double Non-AC')</td></tr>
+      <tr><td>capacity</td><td>INTEGER</td><td>NO</td><td>CHECK (capacity > 0)</td><td>Total allowed beds (1 or 2 beds)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Table 5: rooms (Hostel Living Quarters)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Column Name</th>
+        <th>Data Type</th>
+        <th>Null?</th>
+        <th>Constraints / Keys</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>id</td><td>INTEGER</td><td>NO</td><td>PRIMARY KEY, Auto-increment</td><td>Room surrogate key</td></tr>
+      <tr><td>block</td><td>VARCHAR(50)</td><td>NO</td><td>Indexed</td><td>Hostel wing ('Block A', 'Block B', 'Block C')</td></tr>
+      <tr><td>room_number</td><td>VARCHAR(50)</td><td>NO</td><td>Indexed</td><td>Door label ('A-101', 'B-202')</td></tr>
+      <tr><td>type_id</td><td>INTEGER</td><td>NO</td><td>FOREIGN KEY -> room_types(id)</td><td>Room tier specification</td></tr>
+      <tr><td>has_ac</td><td>BOOLEAN</td><td>NO</td><td>DEFAULT FALSE</td><td>Air-conditioning indicator</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>NO</td><td>DEFAULT CURRENT_TIMESTAMP</td><td>Creation timestamp</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Table 6: allocations (Bed Residency History)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Column Name</th>
+        <th>Data Type</th>
+        <th>Null?</th>
+        <th>Constraints / Keys</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>id</td><td>INTEGER</td><td>NO</td><td>PRIMARY KEY, Auto-increment</td><td>Allocation record identifier</td></tr>
+      <tr><td>student_id</td><td>INTEGER</td><td>NO</td><td>FOREIGN KEY -> students(id) CASCADE</td><td>Resident student</td></tr>
+      <tr><td>room_id</td><td>INTEGER</td><td>NO</td><td>FOREIGN KEY -> rooms(id) CASCADE</td><td>Allocated room unit</td></tr>
+      <tr><td>allocation_date</td><td>DATE</td><td>NO</td><td>DEFAULT CURRENT_DATE</td><td>Date student moved in</td></tr>
+      <tr><td>deposit_paid</td><td>NUMERIC(10,2)</td><td>NO</td><td>DEFAULT 5000.00</td><td>Caution deposit collected in INR</td></tr>
+      <tr><td>is_active</td><td>BOOLEAN</td><td>NO</td><td>DEFAULT TRUE, Indexed</td><td>Active living status flag</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>NO</td><td>DEFAULT CURRENT_TIMESTAMP</td><td>Record creation timestamp</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Table 7: staff (Maintenance Workforce)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Column Name</th>
+        <th>Data Type</th>
+        <th>Null?</th>
+        <th>Constraints / Keys</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>id</td><td>INTEGER</td><td>NO</td><td>PRIMARY KEY, Auto-increment</td><td>Staff payroll ID</td></tr>
+      <tr><td>name</td><td>VARCHAR(255)</td><td>NO</td><td>NOT NULL</td><td>Technician name ('Murugan', 'Ramesh')</td></tr>
+      <tr><td>role_type</td><td>VARCHAR(100)</td><td>NO</td><td>NOT NULL</td><td>Trade ('Senior Electrician', 'Plumber')</td></tr>
+      <tr><td>phone</td><td>VARCHAR(50)</td><td>NO</td><td>NOT NULL</td><td>Duty contact phone number</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Table 8: complaints (Maintenance Tickets)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Column Name</th>
+        <th>Data Type</th>
+        <th>Null?</th>
+        <th>Constraints / Keys</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>id</td><td>INTEGER</td><td>NO</td><td>PRIMARY KEY, Auto-increment</td><td>Complaint ticket identifier</td></tr>
+      <tr><td>ticket_number</td><td>VARCHAR(50)</td><td>NO</td><td>UNIQUE, Indexed</td><td>Ticket code format ('CM-2026-XXXX')</td></tr>
+      <tr><td>student_id</td><td>INTEGER</td><td>NO</td><td>FOREIGN KEY -> students(id) CASCADE</td><td>Filing resident</td></tr>
+      <tr><td>staff_id</td><td>INTEGER</td><td>YES</td><td>FOREIGN KEY -> staff(id) SET NULL</td><td>Assigned service technician</td></tr>
+      <tr><td>category</td><td>VARCHAR(100)</td><td>NO</td><td>Indexed</td><td>Plumbing, Electrical, Internet, Carpentry</td></tr>
+      <tr><td>title</td><td>VARCHAR(200)</td><td>NO</td><td>NOT NULL</td><td>Issue headline</td></tr>
+      <tr><td>description</td><td>TEXT</td><td>NO</td><td>NOT NULL</td><td>Detailed description</td></tr>
+      <tr><td>urgency</td><td>VARCHAR(20)</td><td>NO</td><td>CHECK ('High', 'Medium', 'Low')</td><td>Priority rating</td></tr>
+      <tr><td>status</td><td>VARCHAR(50)</td><td>NO</td><td>CHECK ('Open', 'Escalated', 'Resolved')</td><td>Workflow status</td></tr>
+      <tr><td>assigned_staff</td><td>VARCHAR(255)</td><td>YES</td><td>Optional</td><td>Technician display name</td></tr>
+      <tr><td>resolution_notes</td><td>TEXT</td><td>YES</td><td>Optional</td><td>Remarks upon completion</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>NO</td><td>DEFAULT CURRENT_TIMESTAMP</td><td>Filing timestamp</td></tr>
+      <tr><td>resolved_at</td><td>TIMESTAMP</td><td>YES</td><td>Optional</td><td>Resolution timestamp</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Table 9: attendance (Daily Night Roll-Call)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Column Name</th>
+        <th>Data Type</th>
+        <th>Null?</th>
+        <th>Constraints / Keys</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>id</td><td>INTEGER</td><td>NO</td><td>PRIMARY KEY, Auto-increment</td><td>Record identifier</td></tr>
+      <tr><td>student_id</td><td>INTEGER</td><td>NO</td><td>FOREIGN KEY -> students(id) CASCADE</td><td>Resident audited</td></tr>
+      <tr><td>admin_id</td><td>INTEGER</td><td>YES</td><td>FOREIGN KEY -> admins(id) SET NULL</td><td>Supervising audit officer</td></tr>
+      <tr><td>date</td><td>DATE</td><td>NO</td><td>Indexed</td><td>Roll-call calendar date</td></tr>
+      <tr><td>status</td><td>VARCHAR(50)</td><td>NO</td><td>CHECK ('Present', 'Absent', 'Late')</td><td>Night verification result</td></tr>
+      <tr><td>notes</td><td>VARCHAR(255)</td><td>YES</td><td>Optional</td><td>Special remarks ('Lab permission till 11 PM')</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>NO</td><td>DEFAULT CURRENT_TIMESTAMP</td><td>Log timestamp</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">
+    <strong>Constraint:</strong> <code>CONSTRAINT uq_student_date UNIQUE (student_id, date)</code> enforces idempotency.
+  </div>
+
+  <h3>Table 10: leave_passes (Out-Station Gate Passes)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Column Name</th>
+        <th>Data Type</th>
+        <th>Null?</th>
+        <th>Constraints / Keys</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>id</td><td>INTEGER</td><td>NO</td><td>PRIMARY KEY, Auto-increment</td><td>Gate pass identifier</td></tr>
+      <tr><td>pass_code</td><td>VARCHAR(50)</td><td>NO</td><td>UNIQUE, Indexed</td><td>Official pass code ('GP-2026-XXXX')</td></tr>
+      <tr><td>student_id</td><td>INTEGER</td><td>NO</td><td>FOREIGN KEY -> students(id) CASCADE</td><td>Applicant resident</td></tr>
+      <tr><td>authority_id</td><td>INTEGER</td><td>YES</td><td>FOREIGN KEY -> authorities(id) SET NULL</td><td>Reviewing Warden</td></tr>
+      <tr><td>leave_type</td><td>VARCHAR(50)</td><td>NO</td><td>CHECK ('Weekend outing', 'Emergency leave', 'Vacation')</td><td>Type of absence</td></tr>
+      <tr><td>departure_date</td><td>TIMESTAMP</td><td>NO</td><td>NOT NULL</td><td>Departure date and time</td></tr>
+      <tr><td>return_date</td><td>TIMESTAMP</td><td>NO</td><td>NOT NULL</td><td>Expected return date and time</td></tr>
+      <tr><td>destination</td><td>VARCHAR(255)</td><td>NO</td><td>NOT NULL</td><td>Travel destination address/city</td></tr>
+      <tr><td>reason</td><td>TEXT</td><td>NO</td><td>NOT NULL</td><td>Justification for absence</td></tr>
+      <tr><td>emergency_contact</td><td>VARCHAR(50)</td><td>NO</td><td>NOT NULL</td><td>Active phone during travel</td></tr>
+      <tr><td>parent_consent</td><td>BOOLEAN</td><td>NO</td><td>DEFAULT TRUE</td><td>Parent permission verified</td></tr>
+      <tr><td>status</td><td>VARCHAR(50)</td><td>NO</td><td>CHECK ('Pending', 'Approved', 'Rejected')</td><td>Workflow authorization state</td></tr>
+      <tr><td>gate_pass_token</td><td>VARCHAR(100)</td><td>YES</td><td>Hex Token</td><td>Electronic barcode authorization token</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>NO</td><td>DEFAULT CURRENT_TIMESTAMP</td><td>Submission timestamp</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">
+    <strong>Constraint:</strong> <code>CONSTRAINT chk_leave_dates CHECK (return_date >= departure_date)</code> prevents invalid travel dates.
+  </div>
+
+  <h2>4. Normalization Proofs (1NF through BCNF)</h2>
+  <p><strong>First Normal Form (1NF):</strong> All attributes contain atomic values. No multivalued repeating groups exist; past bed stays are isolated in <code>allocations</code>.</p>
+  <p><strong>Second Normal Form (2NF):</strong> No partial functional dependencies. In composite candidate key tables (e.g. <code>attendance</code>), non-prime attributes depend on the complete key <code>(student_id, date)</code>.</p>
+  <p><strong>Third Normal Form (3NF) & BCNF:</strong> Eliminates transitive dependencies. Specifically, <code>room_types</code> is separated so <code>type_name -> capacity</code> is not transitive in <code>rooms</code>. Every determinant is a candidate key.</p>
+
+  <h2>5. Role-Based Access Control (RBAC) & Security Mapping</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Feature / Route</th>
+        <th>Student (students)</th>
+        <th>Chief Warden (authorities)</th>
+        <th>Institute Head (admins)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Room Allocation</strong> (<code>/rooms</code>)</td>
+        <td>❌ 403 Forbidden (Blocked)</td>
+        <td>Full Access (All Blocks)</td>
+        <td>Full Access (Audit)</td>
+      </tr>
+      <tr>
+        <td><strong>Night Attendance</strong> (<code>/attendance</code>)</td>
+        <td>❌ 403 Forbidden (Blocked)</td>
+        <td>Full Access (Roll-Call)</td>
+        <td>Full Access (Auditing)</td>
+      </tr>
+      <tr>
+        <td><strong>Apply for Leave</strong> (<code>/apply-leave</code>)</td>
+        <td>Allowed (Student Only)</td>
+        <td>❌ 403 Forbidden (Blocked)</td>
+        <td>❌ 403 Forbidden (Blocked)</td>
+      </tr>
+      <tr>
+        <td><strong>Approve / Reject Pass</strong></td>
+        <td>❌ 403 Forbidden (Blocked)</td>
+        <td>Approve & Token Minting</td>
+        <td>Supervisory Audit</td>
+      </tr>
+      <tr>
+        <td><strong>Complaints Tracking</strong></td>
+        <td>Isolated (Own Tickets Only)</td>
+        <td>All Tickets & Dispatch</td>
+        <td>Institutional Backlog</td>
+      </tr>
+      <tr>
+        <td><strong>Executive Overview</strong></td>
+        <td>Resident Personal Card</td>
+        <td>Full Operations Matrix</td>
+        <td>Institutional Analytics</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>6. Verified System Credentials</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>User Persona</th>
+        <th>Login Email</th>
+        <th>Password</th>
+        <th>Database Table</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Resident Student</strong></td>
+        <td><code>siddharth@hostelos.in</code></td>
+        <td><code>Student@123</code></td>
+        <td><code>students</code></td>
+      </tr>
+      <tr>
+        <td><strong>Chief Warden</strong></td>
+        <td><code>warden@hostelos.in</code></td>
+        <td><code>Warden@123</code></td>
+        <td><code>authorities</code></td>
+      </tr>
+      <tr>
+        <td><strong>Institute Head</strong></td>
+        <td><code>admin@hostelos.in</code></td>
+        <td><code>Admin@123</code></td>
+        <td><code>admins</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+</body>
+</html>
