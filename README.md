@@ -32,6 +32,12 @@ HostelOS solves these challenges through a **10-table relational schema normaliz
 
 ## 🏛️ System Architecture & Entity-Relationship Model
 
+<div align="center">
+  <img src="schema_diagram.png" alt="HostelOS Relational Schema & ER Diagram" width="850"/>
+  <p><em>Official 10-Table Relational Schema & Entity-Relationship (ER) Diagram (BCNF / 3NF)</em></p>
+  <p><a href="https://raw.githubusercontent.com/GowthamAdithya07/hostelos/main/schema_diagram.png"><b>⬇️ Click here to Download Full-Resolution Schema Diagram (PNG)</b></a></p>
+</div>
+
 ```mermaid
 erDiagram
     STUDENT ||--o{ ALLOCATION : "assigned via"
